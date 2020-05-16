@@ -16,7 +16,7 @@ import cloudpickle
 class Photo(models.Model):
     image = models.ImageField(upload_to='photos')
 
-    IMAGE_SIZE = 224 # 画像サイズ
+    IMAGE_SIZE = 224 # モデルに入力する画像サイズ
     MODEL_FILE_PATH = './carbike/ml_models/model.ckpt' # モデルファイル
     classes = ["car", "motorbike"]
     num_classes = len(classes)
@@ -31,12 +31,12 @@ class Photo(models.Model):
         model = torchvision.models.resnet18(pretrained=False)
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, 2) # 1000の出力数を2に変換
-
         model.load_state_dict(torch.load(self.MODEL_FILE_PATH, map_location='cpu'))
 
         img_data = self.image.read()
         img_bin = io.BytesIO(img_data)
 
+        # 画像の変換
         image = Image.open(img_bin)
         image = image.convert("RGB")
         image = image.resize((self.IMAGE_SIZE, self.IMAGE_SIZE))
@@ -45,6 +45,7 @@ class Photo(models.Model):
         X.append(data)
         X = np.array(X)
 
+        # tensorに変換
         X = torch.from_numpy(X)
         X = X.to(device=self.device, dtype=torch.float)
         X = X.permute(0, 3, 1, 2)
