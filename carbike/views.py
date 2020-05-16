@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import loader
 from .forms import PhotoForm
+from .models import Photo
 
 def index(request):
     template = loader.get_template('carbike/index.html')
@@ -9,4 +10,23 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def predict(request):
-    return HttpResponse("hellwwwo")
+    if not request.method == 'POST':
+        return
+        redirect('carbike:index')
+
+    form = PhotoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        raise ValueError('Formが不正です')
+
+    photo = Photo(image=form.cleaned_data['image'])
+    predicted = photo.predict()
+
+    template = loader.get_template('carbike/result.html')
+
+    context = {
+        'photo_name': photo.image.name,
+        'photo_data': photo.image_src(),
+        'predicted': predicted
+    }
+
+    return HttpResponse(template.render(context, request))
