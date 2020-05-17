@@ -18,6 +18,6 @@ http://34.226.247.75/carbike/
 | Web Application Framework | Django=3.0.6 |
 
 その他備考
-- Resnetを転移学習させた画像識別モデルを構築して利用
+- ResNetに全結合層を加え転移学習させたモデルを利用
 - FlickrAPIによって取得した車とバイクの画像を用いて転移学習を行った、テストデータに対しては95％程の正答率
 - PyTorch使用
